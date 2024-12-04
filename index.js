@@ -28,6 +28,16 @@ async function run() {
 
         const movieCollection = client.db("movieDB").collection("movies");
 
+        app.get('/movies', async (req, res) => {
+            try {
+                const query = movieCollection.find();
+                const result = await query.toArray();
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to fetch movie data" });
+            };
+        });
+
         app.post('/movies', async (req, res) => {
             const newMovie = req.body;
             console.log(newMovie);
