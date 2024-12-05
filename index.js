@@ -55,10 +55,21 @@ async function run() {
 
             try {
                 const result = await movieCollection.insertOne(newMovie);
-                res.status(201).send(result);
+                res.status(200).send(result);
             } catch (error) {
                 console.error(error.message);
                 res.status(500).send({ error: "Failed to add movie" });
+            };
+        });
+        
+        app.delete('/movies/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = {_id: new ObjectId(id)};
+                const result = await movieCollection.deleteOne(query);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to remove movie" });
             };
         });
 
