@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -37,6 +37,17 @@ async function run() {
                 res.status(500).send({ error: "Failed to fetch movie data" });
             };
         });
+
+        app.get('/movies/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await movieCollection.findOne(query);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to fetch movie data" });
+            }
+        })
 
         app.post('/movies', async (req, res) => {
             const newMovie = req.body;
