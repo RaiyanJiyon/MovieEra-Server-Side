@@ -27,6 +27,7 @@ async function run() {
         await client.connect();
 
         const movieCollection = client.db("movieDB").collection("movies");
+        const favoriteCollection = client.db("movieDB").collection("favoriteMovies");
 
         app.get('/movies', async (req, res) => {
             try {
@@ -61,11 +62,11 @@ async function run() {
                 res.status(500).send({ error: "Failed to add movie" });
             };
         });
-        
+
         app.delete('/movies/:id', async (req, res) => {
             try {
                 const id = req.params.id;
-                const query = {_id: new ObjectId(id)};
+                const query = { _id: new ObjectId(id) };
                 const result = await movieCollection.deleteOne(query);
                 res.status(200).send(result);
             } catch (error) {
@@ -73,7 +74,60 @@ async function run() {
             };
         });
 
+        app.put('/movies/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedMovie = req.body;
+            const movie = {
+                $set: {
+                    moviePoster: updatedMovie.moviePoster,
+                    movieTitle: updatedMovie.movieTitle,
+                    genre: updatedMovie.genre,
+                    duration: updatedMovie.duration,
+                    releaseYear: updatedMovie.releaseYear,
+                    summary: updatedMovie.summary,
+                    rating: updatedMovie.rating,
+                }
+            };
+            try {
+                const result = await movieCollection.updateOne(filter, movie); // Use await here
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to update movie" });
+            };
+        });
 
+        app.get('/favorite/:email', async (req, res) => {
+            try {
+                const email = req.params.email;
+                const query = { email: email };
+                const result = await favoriteCollection.find(query).toArray();
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to fetch favorite movies" });
+            }
+        })
+
+        app.post('/favorite', async (req, res) => {
+            try {
+                const favoriteMovie = req.body;
+                const result = await favoriteCollection.insertOne(favoriteMovie);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to add to favorite movie" });
+            };
+        });
+
+        app.delete('/favorite/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { _id: id };
+                const result = await favoriteCollection.deleteOne(query);
+                res.status(200).send(result);
+            } catch (error) {
+                res.status(500).send({ error: "Failed to remove movie from favorite list." });
+            }
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
