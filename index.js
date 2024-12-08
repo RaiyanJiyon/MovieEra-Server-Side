@@ -97,6 +97,16 @@ async function run() {
             };
         });
 
+        app.get('/featured-movies', async (req, res) => {
+            try {
+                const result = await movieCollection.find().sort({ rating: -1 }).limit(6).toArray();
+                res.status(200).send(result);
+            }
+            catch (error) {
+                res.status(500).send({ error: "Failed to fetch featured movies" });
+            }
+        });
+
         app.get('/favorite/:email', async (req, res) => {
             try {
                 const email = req.params.email;
