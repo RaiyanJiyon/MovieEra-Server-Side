@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server (optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const movieCollection = client.db("movieDB").collection("movies");
         const favoriteCollection = client.db("movieDB").collection("favoriteMovies");
@@ -131,7 +131,7 @@ async function run() {
         app.delete('/favorite/:id', async (req, res) => {
             try {
                 const id = req.params.id;
-                const query = { _id: id };
+                const query = { _id: new ObjectId(id) };
                 const result = await favoriteCollection.deleteOne(query);
                 res.status(200).send(result);
             } catch (error) {
@@ -140,7 +140,7 @@ async function run() {
         });
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } catch (error) {
         console.error('Connection error:', error);
